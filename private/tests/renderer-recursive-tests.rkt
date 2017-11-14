@@ -16,7 +16,7 @@
 ;; A recursive shape...
 (define-shape circles
   (circle)
-  (circles [s .9]))
+  (circles [scale .9]))
 
 (define pr (new path-record%))
 
@@ -24,16 +24,20 @@
 
 (let-values ([(min-x min-y max-x max-y)
               (send pr get-bounding)])
-  (print min-x)
-  (print max-x))
+  (println min-x)
+  (println max-x))
 
 ;; Now render a circle...
 (define circles-renderer ((circles) identity))
 
-(circles-renderer pr)
-
+;; Calling circles-renderer returns two renderers
+;; the first is the circle, the second the recursive
+;; call...
+(let ([renderers (circles-renderer pr)])
+  ((car renderers) pr))
+  
 ;; Check to see what we have...
 (let-values ([(min-x min-y max-x max-y)
               (send pr get-bounding)])
-  (print min-x)
-  (print max-x))
+  (println min-x)
+  (println max-x))
