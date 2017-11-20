@@ -21,7 +21,7 @@
 
   ; Types
 
-  (define-type ShapeRenderer (-> (Instance PathRecord%) (Sequenceof ShapeRenderer)))
+  (define-type ShapeRenderer (-> (-> path Void) (Sequenceof ShapeRenderer)))
   (define-type Shape (-> adjustment ShapeRenderer))
   (define-type ShapeConstructor (->* () () #:rest (-> AdjustmentDelta) Shape))
 
@@ -31,15 +31,16 @@
   (define (make-shape-constructor base-points)
     (λ  rel-adjs ; shape constructor
       (λ (ctx-adj) ; shape
-        (λ (dc) ; shape-renderer
+        (λ (fn) ; shape-renderer, pass in your path-record function
+          ; such as (lambda P (send dc record-path P)) 
           (define adj (apply combine-adjustment ctx-adj rel-adjs))
           (define geom (adjustment-geometric adj))
           (define points (matrix* geom base-points))
-          (send dc record-path (path points
-                                    (adjustment-hue adj)
-                                    (adjustment-saturation adj)
-                                    (adjustment-brightness adj)
-                                    (adjustment-alpha adj)))
+          (fn (path points
+                    (adjustment-hue adj)
+                    (adjustment-saturation adj)
+                    (adjustment-brightness adj)
+                    (adjustment-alpha adj)))
           '()))))
 
   (: square ShapeConstructor)
