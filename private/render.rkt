@@ -18,7 +18,7 @@
                       [queue-empty? (-> Queue Boolean)]
                       [queue-length (-> Queue Integer)])
 
-(provide maximum-render-cycles)
+(provide maximum-render-cycles minimum-shape-size)
 
 (unsafe-provide render-shape)
 
