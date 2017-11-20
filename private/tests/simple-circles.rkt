@@ -9,5 +9,5 @@
        [hue      2    ])
 )
 
-(maximum-render-cycles 100)
+(maximum-render-cycles 1000)
 (start-shape row)
