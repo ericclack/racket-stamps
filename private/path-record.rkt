@@ -105,7 +105,7 @@
           (set-brush-with-solid-color dc hue saturation brightness alpha))
 
         ; transform the matrix according to "trans" and
-        ; build a points (pairs of reals)
+        ; build a list of points (pairs of reals)
         (define mat (matrix* trans (path-points P)))
         (define N (matrix-num-cols mat))
 
@@ -127,6 +127,8 @@
       (define mat (path-points P))
       (define N (matrix-num-cols mat))
 
+      ; capture the biggest & smallest x & y values in the path
+      ; and update our max and min if we need to
       (: xs (Listof Real))
       (define xs (for/list ([i (range N)])
                    (matrix-ref mat 0 i)))
@@ -139,6 +141,10 @@
       (define small-x (apply min xs))
       (define big-y (apply max ys))
       (define small-y (apply min ys))
+
+      ; what's the size of this?
+      (println (max (- big-x small-x)
+                    (- big-y small-y)))
 
       (when (or (queue-empty? paths-queue) (> big-x max-x)) (set! max-x big-x))
       (when (or (queue-empty? paths-queue) (> big-y max-y)) (set! max-y big-y))
