@@ -56,7 +56,8 @@
   (define-values (big-x small-x big-y small-y)
     (xy-extent P))
   (/ (+ (- big-x small-x)
-        (- big-y small-y))))
+        (- big-y small-y))
+     2))
   
 
 ; Helper to apply color adjustments

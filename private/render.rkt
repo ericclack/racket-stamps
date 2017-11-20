@@ -24,7 +24,7 @@
 
 ; Parameter that controls how many shapes to render
 (define maximum-render-cycles (make-parameter 10000))
-(define minimum-shape-size (make-parameter 0.0001))
+(define minimum-shape-size (make-parameter 0.001))
 
 
 ; Render a shape in a device context. Returns the number of shapes
@@ -55,18 +55,17 @@
   
   (let render-loop ([renderer (dequeue! renderers-queue)]
                     [n 0])
-    ; renderer is a shape, call it with our path record to capture its shape
-    ; it will do this as long as it's not too small. It may return more
-    ; renderers, i.e. sub-shapes, which we add to the queue, provided
-    ; the shape has not become too small
+    ; renderer is a shape, call it with a record-a-path function.
+    ; it may return more renderers, i.e. sub-shapes, which we add to
+    ; the queue, provided the shape has not become too small
     (: shape-too-small Boolean)
     (define shape-too-small #f)
     
     (: record-a-path (-> path Void))
-    (define (record-a-path points)
-      (if (< (shape-size points) (minimum-shape-size))
+    (define (record-a-path path)
+      (if (< (shape-size path) (minimum-shape-size))
           (set! shape-too-small #t)
-          (send pr record-path points)))
+          (send pr record-path path)))
 
     (define sub-shapes (renderer record-a-path))
 
