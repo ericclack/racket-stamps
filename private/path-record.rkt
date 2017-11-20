@@ -20,6 +20,7 @@
                       [queue-empty? (-> Queue Boolean)])
 
 (provide path
+         shape-size
          PathRecord%
          path-record%)
 
@@ -29,6 +30,34 @@
               [brightness : Real]
               [alpha      : Real])
   #:transparent)
+
+(: xy-extent (-> path (values Real Real Real Real)))
+(define (xy-extent P)
+
+  (define mat (path-points P))
+  (define N (matrix-num-cols mat))
+
+  (: xs (Listof Real))
+  (define xs (for/list ([i (range N)])
+                       (matrix-ref mat 0 i)))
+
+  (: ys (Listof Real))
+  (define ys (for/list ([i (range N)])
+                       (matrix-ref mat 1 i)))
+
+  (values (apply max xs)
+        (apply min xs)
+        (apply max ys)
+        (apply min ys)))
+
+
+(: shape-size (-> path Real))
+(define (shape-size P)
+  (define-values (big-x small-x big-y small-y)
+    (xy-extent P))
+  (/ (+ (- big-x small-x)
+        (- big-y small-y))))
+  
 
 ; Helper to apply color adjustments
 (: set-brush-with-solid-color (-> (Instance Dc<%>) Real Real Real Real Void))
@@ -124,33 +153,14 @@
     (: record-path (-> path Void))
     (define/public (record-path P)
 
-      (define mat (path-points P))
-      (define N (matrix-num-cols mat))
-
-      ; capture the biggest & smallest x & y values in the path
-      ; and update our max and min if we need to
-      (: xs (Listof Real))
-      (define xs (for/list ([i (range N)])
-                   (matrix-ref mat 0 i)))
-
-      (: ys (Listof Real))
-      (define ys (for/list ([i (range N)])
-                   (matrix-ref mat 1 i)))
-
-      (define big-x (apply max xs))
-      (define small-x (apply min xs))
-      (define big-y (apply max ys))
-      (define small-y (apply min ys))
-
-      ; what's the size of this?
-      (println (max (- big-x small-x)
-                    (- big-y small-y)))
+      (define-values (big-x small-x big-y small-y)
+        (xy-extent P))
 
       (when (or (queue-empty? paths-queue) (> big-x max-x)) (set! max-x big-x))
       (when (or (queue-empty? paths-queue) (> big-y max-y)) (set! max-y big-y))
       (when (or (queue-empty? paths-queue) (< small-x min-x)) (set! min-x small-x))
       (when (or (queue-empty? paths-queue) (< small-y min-y)) (set! min-y small-y))
-
+      
       (enqueue! paths-queue P))))
 
 
