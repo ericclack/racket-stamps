@@ -157,10 +157,10 @@
       (define-values (big-x small-x big-y small-y)
         (xy-extent P))
 
-      (when (or (queue-empty? paths-queue) (> big-x max-x)) (set! max-x big-x))
-      (when (or (queue-empty? paths-queue) (> big-y max-y)) (set! max-y big-y))
-      (when (or (queue-empty? paths-queue) (< small-x min-x)) (set! min-x small-x))
-      (when (or (queue-empty? paths-queue) (< small-y min-y)) (set! min-y small-y))
+      (when (> big-x max-x) (set! max-x big-x))
+      (when (> big-y max-y) (set! max-y big-y))
+      (when (< small-x min-x) (set! min-x small-x))
+      (when (< small-y min-y) (set! min-y small-y))
       
       (enqueue! paths-queue P))))
 
