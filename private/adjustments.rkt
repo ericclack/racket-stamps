@@ -80,10 +80,10 @@
   (define change-%
     (case-lambda
       ([val %]
-       (change-to-target val % (if (< % 0) 0.0 1.0)))
+       (change-to-target val % (if (< % 0.0) 0.0 1.0)))
       ([val % target]
-       (change-to-target val % (if (< % 0)
-                                   (if (> 1/2 (- 1 val))
+       (change-to-target val % (if (< % 0.0)
+                                   (if (> 0.5 (- 1.0 val))
                                        1.0
                                        0.0)
                                    target)))))
@@ -94,7 +94,7 @@
   (define (change-hue current delta)
     (define new-hue (float-modulo (+ current delta) 360.0))
     (+ new-hue
-       (if (< new-hue 0) 360.0 0.0)))
+       (if (< new-hue 0.0) 360.0 0.0)))
 
   ; Change hue modulo 360 with target
   (: change-hue-target (-> Flonum Flonum Flonum Flonum))

@@ -61,7 +61,7 @@
     (build-matrix 3 sides
                   (λ ([i : Integer] [j : Integer])
                     (define alpha (* (real->double-flonum j)
-                                     (/ pi (/ sides 2.0))))
+                                     (/ pi (/ (real->double-flonum sides) 2.0))))
                     (cond
                       [(= i 0) (/ (cos alpha) 2.0)]
                       [(= i 1) (/ (sin alpha) 2.0)]

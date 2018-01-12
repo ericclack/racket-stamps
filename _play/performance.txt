@@ -23,3 +23,14 @@ rendering...recording paths...drawing paths in bounding box (-5.00 -10.00 15.00 
 rendering...recording paths...drawing paths in bounding box (-5.00 -10.00 15.00 10.00)... 22224 shapes, 19176 ms
 
 rendering...recording paths...drawing paths in bounding box (-5.00 -10.00 15.00 10.00)... 22224 shapes, 18687 ms
+
+After more changes:
+
+rendering...recording paths...drawing paths in bounding box (-5.00 -10.00 15.00 10.00)... 22224 shapes, 15892 ms
+
+rendering...recording paths...drawing paths in bounding box (-5.00 -10.00 15.00 10.00)... 22224 shapes, 18757 ms
+
+rendering...recording paths...drawing paths in bounding box (-5.00 -10.00 15.00 10.00)... 22224 shapes, 18994 ms
+
+rendering...recording paths...drawing paths in bounding box (-5.00 -10.00 15.00 10.00)... 22224 shapes, 16937 ms
+

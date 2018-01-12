@@ -8,7 +8,8 @@
          "color-utils.rkt"
          "linalg-utils.rkt"
          "common.rkt"
-         typed/racket/unsafe)
+         typed/racket/unsafe
+         racket/performance-hint)
 
 (unsafe-require/typed "priority-queue.rkt"
                       [ #:opaque Queue pqueue?]
@@ -146,9 +147,10 @@
         (define N (matrix-num-cols mat))
 
         (: points (Listof (Pairof Flonum Flonum)))
-        (define points (for/list ([i (range N)])
-                         (cons (matrix-ref mat 0 i)
-                               (matrix-ref mat 1 i))))
+        (define points (begin-encourage-inline
+                         (for/list ([i (range N)])
+                                   (cons (matrix-ref mat 0 i)
+                                         (matrix-ref mat 1 i)))))
 
         (send dc draw-polygon points)
 
