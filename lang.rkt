@@ -40,7 +40,7 @@
 
 ; Parameters
 
-(define background  (make-parameter '(0 0 1)))
+(define background  (make-parameter '(0.0 0.0 1.0)))
 (define width       (make-parameter 1024))
 (define height      (make-parameter 768))
 (define filename    (make-parameter "output.png"))

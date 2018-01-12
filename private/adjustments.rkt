@@ -92,7 +92,7 @@
   ; Change hue modulo 360
   (: change-hue (-> Flonum Flonum Flonum))
   (define (change-hue current delta)
-    (define new-hue (float-modulo (+ current delta) 360))
+    (define new-hue (float-modulo (+ current delta) 360.0))
     (+ new-hue
        (if (< new-hue 0) 360.0 0.0)))
 

@@ -46,7 +46,7 @@
 (define (hsb->rgb-unit h s b)
   (define C (* b s))
   (define h-prime (/ h 60))
-  (define X (* C (- 1 (abs (- (float-modulo h-prime 2) 1)))))
+  (define X (* C (- 1 (abs (- (float-modulo h-prime 2.0) 1.0)))))
   (define-values (r1 g1 b1)
     (cond
       [(between? h-prime 0.0 1.0) (values C X 0)]
