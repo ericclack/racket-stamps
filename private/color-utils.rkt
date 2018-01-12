@@ -31,35 +31,35 @@
 ;;   m = V - C
 ;;   (R, G, B) = (R1 + m, G1 + m, B1 + m)
 
-(: between? (-> Real Real Real Boolean))
+(: between? (-> Flonum Flonum Flonum Boolean))
 (define (between? n min max)
   (and (<= min n) (< n max)))
 
-; Transform a real between 0 and 1 unto a byte? (exact between 0 and 255)
-(: unit-to-byte (-> Real Byte))
+; Transform a Flonum between 0 and 1 unto a byte? (exact between 0 and 255)
+(: unit-to-byte (-> Flonum Byte))
 (define (unit-to-byte v)
   (define r (exact-round (* 255 v)))
   (assert (and (<= 0 r) (<= r 255)))
   r)
 
-(: hsb->rgb-unit (-> Real Real Real (Values Real Real Real)))
+(: hsb->rgb-unit (-> Flonum Flonum Flonum (Values Flonum Flonum Flonum)))
 (define (hsb->rgb-unit h s b)
   (define C (* b s))
   (define h-prime (/ h 60))
   (define X (* C (- 1 (abs (- (float-modulo h-prime 2) 1)))))
   (define-values (r1 g1 b1)
     (cond
-      [(between? h-prime 0 1) (values C X 0)]
-      [(between? h-prime 1 2) (values X C 0)]
-      [(between? h-prime 2 3) (values 0 C X)]
-      [(between? h-prime 3 4) (values 0 X C)]
-      [(between? h-prime 4 5) (values X 0 C)]
-      [(between? h-prime 5 6) (values C 0 X)]
+      [(between? h-prime 0.0 1.0) (values C X 0)]
+      [(between? h-prime 1.0 2.0) (values X C 0)]
+      [(between? h-prime 2.0 3.0) (values 0 C X)]
+      [(between? h-prime 3.0 4.0) (values 0 X C)]
+      [(between? h-prime 4.0 5.0) (values X 0 C)]
+      [(between? h-prime 5.0 6.0) (values C 0 X)]
       [else                   (values 0 0 0)]))
   (define m (- b C))
   (values (+ r1 m) (+ g1 m) (+ b1 m)))
 
-(: hsb->rgb (-> Real Real Real (Values Byte Byte Byte)))
+(: hsb->rgb (-> Flonum Flonum Flonum (Values Byte Byte Byte)))
 (define (hsb->rgb h s b)
   (define-values (red green blue) (hsb->rgb-unit h s b))
   (values (unit-to-byte red)

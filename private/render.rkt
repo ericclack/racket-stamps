@@ -29,7 +29,7 @@
 
 ; The user can set the bounding, bypassing bounding calculation based
 ; on shape
-(define bounding (make-parameter (ann '() (Listof Real))))
+(define bounding (make-parameter (ann '() (Listof Flonum))))
 
 ; Render a shape in a device context. Returns the number of shapes
 ; rendered

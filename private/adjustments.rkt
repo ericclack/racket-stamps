@@ -25,20 +25,20 @@
 
   ;; adjustment definition
 
-  (struct geometric-delta ([matrix : (Matrix Real)]) #:transparent)
+  (struct geometric-delta ([matrix : (Matrix Flonum)]) #:transparent)
 
-  (struct color-delta ([hue        : Real]
-                       [saturation : Real]
-                       [brightness : Real]
-                       [alpha      : Real])
+  (struct color-delta ([hue        : Flonum]
+                       [saturation : Flonum]
+                       [brightness : Flonum]
+                       [alpha      : Flonum])
     #:transparent)
 
   (struct z-order-delta ([z-order : Integer]) #:transparent)
 
-  (struct target-color-delta color-delta ([target-hue        : Real]
-                                          [target-saturation : Real]
-                                          [target-brightness : Real]
-                                          [target-alpha      : Real])
+  (struct target-color-delta color-delta ([target-hue        : Flonum]
+                                          [target-saturation : Flonum]
+                                          [target-brightness : Flonum]
+                                          [target-alpha      : Flonum])
     #:transparent)
 
   (define-type AdjustmentDelta (U geometric-delta
@@ -46,11 +46,11 @@
                                   target-color-delta
                                   z-order-delta))
 
-  (struct adjustment ([geometric  : (Matrix Real)]
-                      [hue        : Real]
-                      [saturation : Real]
-                      [brightness : Real]
-                      [alpha      : Real]
+  (struct adjustment ([geometric  : (Matrix Flonum)]
+                      [hue        : Flonum]
+                      [saturation : Flonum]
+                      [brightness : Flonum]
+                      [alpha      : Flonum]
                       [z-order    : Integer])
     #:transparent)
 
@@ -60,13 +60,13 @@
   ; identity transformation, black, 0-saturation, 0-brightness, 1-alpha
   (: identity adjustment)
   (define identity
-    (adjustment (identity-matrix 3) 0 0 0 1 0))
+    (adjustment (identity-matrix 3 1.0 0.0) 0.0 0.0 0.0 1.0 0))
 
   (: identity-delta (-> geometric-delta))
   (define identity-delta
-    (const (geometric-delta (identity-matrix 3))))
+    (const (geometric-delta (identity-matrix 3 1.0 0.0))))
 
-  (: change-to-target (-> Real Real Real Real))
+  (: change-to-target (-> Flonum Flonum Flonum Flonum))
   (define (change-to-target val % target)
     ; change val by % towards target
     ; % is always treated as positive
@@ -76,28 +76,28 @@
   ; if target is undefined, return val changed % towards 0 or 1, depending if % is negative or positive (respectively).
   ; if target is defined, return val changed % towards target if % is positive, otherwise return val changed to 0 or 1,
   ; whichever is closest.
-  (: change-% (case-> (-> Real Real Real) (-> Real Real Real Real)))
+  (: change-% (case-> (-> Flonum Flonum Flonum) (-> Flonum Flonum Flonum Flonum)))
   (define change-%
     (case-lambda
       ([val %]
-       (change-to-target val % (if (< % 0) 0 1)))
+       (change-to-target val % (if (< % 0) 0.0 1.0)))
       ([val % target]
        (change-to-target val % (if (< % 0)
                                    (if (> 1/2 (- 1 val))
-                                       1
-                                       0)
+                                       1.0
+                                       0.0)
                                    target)))))
 
 
   ; Change hue modulo 360
-  (: change-hue (-> Real Real Real))
+  (: change-hue (-> Flonum Flonum Flonum))
   (define (change-hue current delta)
     (define new-hue (float-modulo (+ current delta) 360))
     (+ new-hue
-       (if (< new-hue 0) 360 0)))
+       (if (< new-hue 0) 360.0 0.0)))
 
   ; Change hue modulo 360 with target
-  (: change-hue-target (-> Real Real Real Real))
+  (: change-hue-target (-> Flonum Flonum Flonum Flonum))
   (define (change-hue-target current % target)
     (define-values (left right)
       (if (< target current)
@@ -202,30 +202,30 @@
 (define-syntax (hue stx)
   (syntax-case stx (..)
     [(_ v)
-     #'(thunk (color-delta v 0 0 0))]
+     #'(thunk (color-delta v 0.0 0.0 0.0))]
     [(_ v t)
-     #'(thunk (target-color-delta v 0 0 0  t 0 0 0))]))
+     #'(thunk (target-color-delta v 0.0 0.0 0.0  t 0.0 0.0 0.0))]))
 
 (define-syntax (saturation stx)
   (syntax-case stx (..)
     [(_ v)
-     #'(thunk (color-delta 0 v 0 0))]
+     #'(thunk (color-delta 0.0 v 0.0 0.0))]
     [(_ v t)
-     #'(thunk (target-color-delta 0 v 0 0  0 t 0 0))]))
+     #'(thunk (target-color-delta 0.0 v 0.0 0.0  0.0 t 0.0 0.0))]))
 
 (define-syntax (brightness stx)
   (syntax-case stx (..)
     [(_ v)
-     #'(thunk (color-delta 0 0 v 0))]
+     #'(thunk (color-delta 0.0 0.0 v 0.0))]
     [(_ v t)
-     #'(thunk (target-color-delta 0 0 v 0  0 0 t 0))]))
+     #'(thunk (target-color-delta 0.0 0.0 v 0.0  0.0 0.0 t 0.0))]))
 
 (define-syntax (alpha stx)
   (syntax-case stx (..)
     [(_ v)
-     #'(thunk (color-delta 0 0 0 v))]
+     #'(thunk (color-delta 0.0 0.0 0.0 v))]
     [(_ v t)
-     #'(thunk (target-color-delta 0 0 0 v  0 0 0 t))]))
+     #'(thunk (target-color-delta 0.0 0.0 0.0 v  0.0 0.0 0.0 t))]))
 
 (define-syntax-rule (z-order v)
   (thunk (z-order-delta v)))

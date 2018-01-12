@@ -21,25 +21,25 @@
          PathRecord%
          path-record%)
 
-(struct path ([points     : (Matrix Real)]
-              [hue        : Real]
-              [saturation : Real]
-              [brightness : Real]
-              [alpha      : Real]
+(struct path ([points     : (Matrix Flonum)]
+              [hue        : Flonum]
+              [saturation : Flonum]
+              [brightness : Flonum]
+              [alpha      : Flonum]
               [z-order    : Integer])
   #:transparent)
 
-(: path-bounding (-> path (values Real Real Real Real)))
+(: path-bounding (-> path (values Flonum Flonum Flonum Flonum)))
 (define (path-bounding P)
 
   (define mat (path-points P))
   (define N (matrix-num-cols mat))
 
-  (: xs (Listof Real))
+  (: xs (Listof Flonum))
   (define xs (for/list ([i (range N)])
                        (matrix-ref mat 0 i)))
 
-  (: ys (Listof Real))
+  (: ys (Listof Flonum))
   (define ys (for/list ([i (range N)])
                        (matrix-ref mat 1 i)))
 
@@ -49,16 +49,16 @@
           (apply max ys)))
 
 ; Helper to apply color adjustments
-(: set-brush-with-solid-color (-> (Instance Dc<%>) Real Real Real Real Void))
+(: set-brush-with-solid-color (-> (Instance Dc<%>) Flonum Flonum Flonum Flonum Void))
 (define (set-brush-with-solid-color dc hue saturation brightness alpha)
   (define-values (r g b) (hsb->rgb hue saturation brightness))
   (define color (make-object color% r g b alpha))
   (send dc set-brush color 'solid))
 
 
-(define-type PathRecord% (Class [get-bounding (-> (Values Real Real Real Real))]
+(define-type PathRecord% (Class [get-bounding (-> (Values Flonum Flonum Flonum Flonum))]
                                 [get-paths-count (-> Integer)]
-                                [set-bounding (-> Real Real Real Real Void)]
+                                [set-bounding (-> Flonum Flonum Flonum Flonum Void)]
                                 [replay (-> (Instance Dc<%>) Void)]
                                 [record-path (-> path Void)]))
 
@@ -67,14 +67,14 @@
 
     (super-new)
 
-    (: min-x Real)
-    (: min-y Real)
-    (: max-x Real)
-    (: max-y Real)
-    (define min-x 0)
-    (define min-y 0)
-    (define max-x 0)
-    (define max-y 0)
+    (: min-x Flonum)
+    (: min-y Flonum)
+    (: max-x Flonum)
+    (: max-y Flonum)
+    (define min-x 0.0)
+    (define min-y 0.0)
+    (define max-x 0.0)
+    (define max-y 0.0)
 
     (: calc-bounding? Boolean)
     (define calc-bounding? #t)
@@ -89,7 +89,7 @@
 
     (define/public (get-paths-count) (item-count paths-queue))
 
-    (: set-bounding (-> Real Real Real Real Void))
+    (: set-bounding (-> Flonum Flonum Flonum Flonum Void))
     (define/public (set-bounding x1 y1 x2 y2)
       (set! min-x x1)
       (set! min-y y1)
@@ -99,16 +99,18 @@
 
     (: replay (-> (Instance Dc<%>) Void))
     (define/public (replay dc)
-      (: current-hue        Real)
-      (: current-saturation Real)
-      (: current-brightness Real)
-      (: current-alpha      Real)
-      (define current-hue        -1)
-      (define current-saturation -1)
-      (define current-brightness -1)
-      (define current-alpha      -1)
+      (: current-hue        Flonum)
+      (: current-saturation Flonum)
+      (: current-brightness Flonum)
+      (: current-alpha      Flonum)
+      (define current-hue        -1.0)
+      (define current-saturation -1.0)
+      (define current-brightness -1.0)
+      (define current-alpha      -1.0)
 
-      (define-values (width height) (send dc get-size))
+      (define-values (w h) (send dc get-size))
+      (define width (real->double-flonum w))
+      (define height (real->double-flonum h))
 
       ; construct a transformation that translates and scales
       ; the bounding into the (0 0 sx sy) area
@@ -117,11 +119,11 @@
       (define x-factor (/ width  b-width))
       (define y-factor (/ height b-height))
       (define factor (min x-factor y-factor))
-      (define trans (matrix* (translation-matrix (/ width -2)
-                                                 (/ height -2))
+      (define trans (matrix* (translation-matrix (/ width -2.0)
+                                                 (/ height -2.0))
                              (scaling-matrix factor factor)
-                             (translation-matrix (/ b-width 2)
-                                                 (/ b-height 2))
+                             (translation-matrix (/ b-width 2.0)
+                                                 (/ b-height 2.0))
                              (translation-matrix min-x
                                                  min-y)))
 
@@ -139,11 +141,11 @@
           (set-brush-with-solid-color dc hue saturation brightness alpha))
 
         ; transform the matrix according to "trans" and
-        ; build a points (pairs of reals)
+        ; build a points (pairs of Flonums)
         (define mat (matrix* trans (path-points P)))
         (define N (matrix-num-cols mat))
 
-        (: points (Listof (Pairof Real Real)))
+        (: points (Listof (Pairof Flonum Flonum)))
         (define points (for/list ([i (range N)])
                          (cons (matrix-ref mat 0 i)
                                (matrix-ref mat 1 i))))
@@ -176,13 +178,15 @@
 (module+ test
   (require typed/rackunit)
 
+  (define epsilon .001)
+
   (test-case "path-record tests"
              
              (define pr (new path-record%))
-             (define a-path (path (matrix [[ 0 -1  2]
-                                           [-2  7  1]
-                                           [ 1  1  1]])
-                                  0 0 0 0 0))
+             (define a-path (path (matrix [[ 0.0 -1.0  2.0]
+                                           [-2.0  7.0  1.0]
+                                           [ 1.0  1.0  1.0]])
+                                  0.0 0.0 0.0 0.0 0))
 
              (check-eq? 0 (send pr get-paths-count))
 
@@ -190,47 +194,47 @@
              (check-eq? 1 (send pr get-paths-count))
              
              (define-values (min-x min-y max-x max-y) (send pr get-bounding))
-             (check-eq? -1 min-x)
-             (check-eq? -2 min-y)
-             (check-eq?  2 max-x)
-             (check-eq?  7 max-y)
+             (check-= -1.0 min-x epsilon)
+             (check-= -2.0 min-y epsilon)
+             (check-=  2.0 max-x epsilon)
+             (check-=  7.0 max-y epsilon)
              
-             (send pr record-path (path (matrix [[ 1  2  3]
-                                                 [ 0 -4  1]
-                                                 [ 1  1  1]])
-                                        0 0 0 0 0))
+             (send pr record-path (path (matrix [[ 1.0  2.0  3.0]
+                                                 [ 0.0 -4.0  1.0]
+                                                 [ 1.0  1.0  1.0]])
+                                        0.0 0.0 0.0 0.0 0))
              (check-eq? 2 (send pr get-paths-count))
              
              (set!-values (min-x min-y max-x max-y) (send pr get-bounding))
-             (check-eq? -1 min-x)
-             (check-eq? -4 min-y)
-             (check-eq?  3 max-x)
-             (check-eq?  7 max-y))
+             (check-= -1.0 min-x epsilon)
+             (check-= -4.0 min-y epsilon)
+             (check-=  3.0 max-x epsilon)
+             (check-=  7.0 max-y epsilon))
 
   (test-case "path function tests"
              
-             (define a-path (path (matrix [[ 0 -1  2 -10]
-                                           [-7  7  1  10]
-                                           [ 1  1  1  1 ]])
-                                  0 0 0 0 0))
+             (define a-path (path (matrix [[ 0.0 -1.0  2.0 -10.0]
+                                           [-7.0  7.0  1.0  10.0]
+                                           [ 1.0  1.0  1.0  1.0 ]])
+                                  0.0 0.0 0.0 0.0 0))
              (define-values (min-x min-y max-x max-y) (path-bounding a-path))
-             (check-eq? -10 min-x)
-             (check-eq? -7 min-y)
-             (check-eq?  2 max-x)
-             (check-eq?  10 max-y))
+             (check-= -10 min-x epsilon)
+             (check-= -7 min-y epsilon)
+             (check-=  2 max-x epsilon)
+             (check-=  10 max-y epsilon))
 
   (test-case "paths with z-orders"
 
              ; Simple path creation with z-order
              (define pr (new path-record%))
-             (define shape (matrix [[ 0 -1  2 -10]
-                                    [-7  7  1  10]
-                                    [ 1  1  1  1 ]]))
-             (define a-path (path shape 0 0 0 0 5))
+             (define shape (matrix [[ 0.0 -1.0  2.0 -10.0]
+                                    [-7.0  7.0  1.0  10.0]
+                                    [ 1.0  1.0  1.0  1.0 ]]))
+             (define a-path (path shape 0.0 0.0 0.0 0.0 5))
              (send pr record-path a-path)
              (check-eq? 1 (send pr get-paths-count))
              
-             (define a-path2 (path shape 0 0 0 0 10))
+             (define a-path2 (path shape 0.0 0.0 0.0 0.0 10))
              (send pr record-path a-path2)
              (check-eq? 2 (send pr get-paths-count))
 

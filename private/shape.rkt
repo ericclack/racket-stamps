@@ -27,7 +27,7 @@
 
   ; Shape constructors
 
-  (: make-shape-constructor (-> (Matrix Real) ShapeConstructor))
+  (: make-shape-constructor (-> (Matrix Flonum) ShapeConstructor))
   (define (make-shape-constructor base-points)
     (λ  rel-adjs ; shape constructor
       (λ (ctx-adj) ; shape
@@ -44,25 +44,28 @@
           '()))))
 
   (: square ShapeConstructor)
-  (define square (make-shape-constructor (matrix [[-1/2 -1/2 1/2  1/2]
-                                                  [-1/2  1/2 1/2 -1/2]
-                                                  [   1    1   1    1]])))
+  (define square (make-shape-constructor (matrix [[-0.5 -0.5 0.5  0.5]
+                                                  [-0.5  0.5 0.5 -0.5]
+                                                  [ 1.0  1.0 1.0  1.0]])))
 
   (: triangle ShapeConstructor)
   (define triangle
-    (make-shape-constructor (matrix [[-1/2  1/2    0]
-                                     [(/ 1 (* 2 (sqrt 3))) (/ 1 (* 2 (sqrt 3))) (/ -1 (sqrt 3))]
-                                     [   1    1    1]])))
+    (make-shape-constructor (matrix [[-0.5  0.5    0.0]
+                                     [(/ 1.0 (* 2.0 (sqrt 3.0)))
+                                      (/ 1.0 (* 2.0 (sqrt 3.0)))
+                                      (/ -1.0 (sqrt 3.0))]
+                                     [ 1.0  1.0    1.0]])))
 
-  (: polygon-matrix (-> Integer (Matrix Real)))
+  (: polygon-matrix (-> Integer (Matrix Flonum)))
   (define (polygon-matrix sides)
     (build-matrix 3 sides
                   (λ ([i : Integer] [j : Integer])
-                    (define alpha (* j (/ pi (/ sides 2))))
+                    (define alpha (* (real->double-flonum j)
+                                     (/ pi (/ sides 2.0))))
                     (cond
-                      [(= i 0) (/ (cos alpha) 2)]
-                      [(= i 1) (/ (sin alpha) 2)]
-                      [else 1]))))
+                      [(= i 0) (/ (cos alpha) 2.0)]
+                      [(= i 1) (/ (sin alpha) 2.0)]
+                      [else 1.0]))))
 
   (: make-polygon-constructor (-> Integer ShapeConstructor))
   (define (make-polygon-constructor sides)

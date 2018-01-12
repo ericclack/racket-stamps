@@ -3,7 +3,7 @@
 (provide Dc<%>
          float-modulo)
 
-(: float-modulo (-> Real Real Real))
+(: float-modulo (-> Flonum Flonum Flonum))
 (define (float-modulo p q)
   (- p (* q (truncate (/ p q)))))
 
@@ -11,5 +11,5 @@
                           [draw-polygon (-> (Listof (Pairof Number Number)) Void)]
                           [draw-path (-> (Object) Void)]
                           [set-pen (-> String Number Symbol Void)]
-                          [get-size (-> (Values Real Real))]
+                          [get-size (-> (Values Flonum Flonum))]
                           [set-smoothing (-> Symbol Void)]))
