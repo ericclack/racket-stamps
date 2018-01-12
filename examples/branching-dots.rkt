@@ -18,6 +18,6 @@
 (define-shape init
   (row [alpha -0.7]))
 
-(maximum-render-cycles 50000)
+(maximum-render-cycles 100000)
 (bounding '(-5.0 -10.0 15.0 10.0))
 (start-shape init)

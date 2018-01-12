@@ -6,13 +6,13 @@
          random-integer
          random-choice)
 
-(: random-real (case-> (-> Flonum) (-> Real Flonum ) (-> Real Real Flonum)))
+(: random-real (case-> (-> Flonum) (-> Flonum Flonum ) (-> Flonum Flonum Flonum)))
 (define random-real
   (case-lambda
     [(min max)
-     (real->double-flonum (+ (* (- max min) (random)) min))]
+     (+ (* (- max min) (random)) min)]
     [(max)
-     (real->double-flonum (* max (random)))]
+     (* max (random))]
     [()
      (random)]))
 
@@ -34,20 +34,20 @@
            racket/list)
 
   (for ([i (range 100)])
-    (define r (random-real -10 -5))
+    (define r (random-real -10.0 -5.0))
     (check-true (and (<= -10 r) (<= r -5))))
 
   (for ([i (range 100)])
-    (define r (random-real 5 10))
+    (define r (random-real 5.0 10.0))
     (check-true (and (<= 5 r) (<= r 10))))
 
 
   (for ([i (range 100)])
-    (define r (random-real -5 5))
+    (define r (random-real -5.0 5.0))
     (check-true (and (<= -5 r) (<= r 5))))
 
   (for ([i (range 100)])
-    (define r (random-real 5))
+    (define r (random-real 5.0))
     (check-true (and (<= 0 r) (<= r 5)) ))
 
  (for ([i (range 100)])
